@@ -1,5 +1,3 @@
-import JayValue._
-
 object Transformations {
 
   val curlyBraceRemover: String => String = rawJson => {
@@ -15,12 +13,4 @@ object Transformations {
   val squareBracketRemover: String => String = rawJson => {
     rawJson.replace("[", "").replace("]","")
   }
-
-  def toJaysonFields[T](pairs: List[String]): List[JayObject] =
-    pairs.flatMap{ pair =>
-      pair.split(":").toList match {
-        case h :: m :: t => JayObject(JayField(h), toJayValue(m)) :: toJaysonFields(t)
-        case _ => throw new Exception("invalid jayson")
-      }
-    }
 }
