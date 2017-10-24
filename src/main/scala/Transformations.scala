@@ -16,10 +16,10 @@ object Transformations {
     rawJson.replace("[", "").replace("]","")
   }
 
-  def toJaysonFields[T](pairs: List[String]): List[JayObject[T]] =
+  def toJaysonFields[T](pairs: List[String]): List[JayObject] =
     pairs.flatMap{ pair =>
       pair.split(":").toList match {
-        case h :: m :: t => JayObject(h, m) :: toJaysonFields(t)
+        case h :: m :: t => JayObject(JayField(h), toJayValue(m)) :: toJaysonFields(t)
         case _ => throw new Exception("invalid jayson")
       }
     }

@@ -6,7 +6,7 @@ sealed trait JaysonValidateResult
 case class JayObject(field: JayField, value: JayValue)
 
 case class Jayson[T](fields: List[JayObject]) {
-  def get(key: String): JayValue = {
+  def get(key: String) = {
     val matchedField = fields.find(_.field.key == key)
     matchedField match {
       case Some(JayObject(_, str@JayString(_))) => str
@@ -23,7 +23,7 @@ case class JayField(key: String)
 sealed trait JayValue
 
 object JayValue {
-  def toJayValue(raw: String) =
+  def toJayValue(raw: String): JayValue =
     if (isArray(raw)) JayArray(squareBracketRemover(raw).split(",").toList)
     else {
       try {
@@ -39,9 +39,7 @@ object JayValue {
     }
 }
 
-case class JayString(value: String) extends JayValue {
-  def get: String = value
-}
+case class JayString(value: String) extends JayValue
 case class JayInt(value: Int) extends JayValue
 case class JayBoolean(value: Boolean) extends JayValue
 case class JayArray[T](value: List[T]) extends JayValue
