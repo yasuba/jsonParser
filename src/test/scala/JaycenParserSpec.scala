@@ -1,7 +1,7 @@
 import org.scalatest.{FlatSpec, Matchers}
-import JsonParser._
+import JaycenParser._
 
-class JsonParserSpec extends FlatSpec with Matchers {
+class JaycenParserSpec extends FlatSpec with Matchers {
 
   val jsonString = """{"name":"Maya"}"""
 
@@ -15,7 +15,9 @@ class JsonParserSpec extends FlatSpec with Matchers {
 
   val arrayValue = """{"pets":["dog"]}"""
 
-  behavior of "Json parser"
+  val nestedObject = """{"person":{"name":"Maya"}}"""
+
+  behavior of "Jaycen parser"
 
   it should "parse simple raw json"  in {
     parse(jsonString).get("name") shouldEqual "Maya"
@@ -44,6 +46,10 @@ class JsonParserSpec extends FlatSpec with Matchers {
       case List(v) => v shouldEqual "dog"
       case _ => fail
     }
+  }
+
+  it should "parse nested objects" in {
+    parse(nestedObject).get("name") shouldEqual "Maya"
   }
 
 }

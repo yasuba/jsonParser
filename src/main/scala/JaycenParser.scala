@@ -1,21 +1,24 @@
 import Transformations._
 import Validations._
 
-object JsonParser {
+object JaycenParser {
 
   def parse[T](rawJson: String): Jaycen[T] =
     isValidJson(rawJson) match {
       case InvalidJaycen(_, error) => throw new Exception(error)
       case ValidJaycen(json) =>
-        val pairs: List[String] = sanitizedString(json).split(",").toList
-        Jaycen(toJaycenFields(pairs))
+        val keyValuePairs: List[String] = sanitizedString(json).split(",").toList
+
+        println(keyValuePairs.map(p => p.split(":").toList))
+
+        Jaycen(toJaycenFields(keyValuePairs))
     }
 
   private def toJaycenFields[T](pairs: List[String]): List[JayObject] =
     pairs.flatMap{ pair =>
       pair.split(":").toList match {
-        case h :: m :: t => JayObject(JayField(h), toJayValue(m)) :: toJaycenFields(t)
-        case _ => throw new Exception("invalid jayson")
+        case h :: m :: t => JayObject(JayField(quoteMarkRemover(h)), toJayValue(quoteMarkRemover(m))) :: toJaycenFields(t)
+        case _ => throw new Exception("invalid jaycen")
       }
     }
 
