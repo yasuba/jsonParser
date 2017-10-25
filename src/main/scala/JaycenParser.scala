@@ -3,32 +3,33 @@ import Validations._
 
 object JaycenParser {
 
-  def parse[T](rawJson: String) =
-    isValidJson(rawJson) match {
-      case InvalidJaycen(_, error) => throw new Exception(error)
-      case ValidJaycen(json) =>
-        val keyValuePairs: List[String] = curlyBraceRemover(json).split(",").toList
+  def parse[T](rawJson: String): Jaycen[T] = isValidJson(rawJson) match {
+    case InvalidJaycen(_, error) => throw new Exception(error)
+    case ValidJaycen(json) =>
+      val keyValuePairs: List[String] = curlyBraceRemover(json).split(",").toList
 
-        val rawJayObjects: List[List[String]] = keyValuePairs.map(p => p.split(":").toList)
+      val rawJayObjects: List[List[String]] = keyValuePairs.map(p => p.split(":").toList)
 
-        def keyValueMap(rawObjects: List[List[String]]): List[List[JayObject]] = rawObjects match {
-          case k :: v :: Nil => {
-            println(toJaycenFields(Map(k -> v)))
-            toJaycenFields(Map(k -> v))
+      def keyValueMap(rawObjects: List[List[String]]): List[JayValue] = {
+        def loop(l: List[String]): JayValue = {
+          l match {
+            case h :: Nil => toJayValue(h)
+            case h :: t :: Nil => toJayObject(h -> toJayValue(t))
+            case k :: v :: t => toJayObject(k -> toJayObject(v -> loop(t)))
+            case _ => throw new Exception("There's nothing to parse")
           }
-//          case k :: t => k -> keyValueMap(List(t))
         }
 
+        rawObjects.map(loop)
+      }
 
-        Jaycen(List(JayObject(JayField("k"), JayInt(1))))
-//        Jaycen(keyValueMap(rawJayObjects))
-    }
+        Jaycen(keyValueMap(rawJayObjects))
 
-  private def toJaycenFields[T](pairs: Map[String,String]): List[JayObject] = {
-    pairs.map { pair =>
-      JayObject(JayField(quoteMarkRemover(pair._1)), toJayValue(quoteMarkRemover(pair._2)))
-    }.toList
+    Jaycen(List(JayObject(JayField("k"), JayInt(1))))
   }
+
+  private def toJayObject[T](pairs: (String,JayValue)): JayObject =
+    JayObject(JayField(quoteMarkRemover(pairs._1)), pairs._2)
 
   private def toJayValue(raw: String): JayValue =
     if (isArray(raw)) JayArray(squareBracketRemover(raw).split(",").toList)
