@@ -9,19 +9,25 @@ object JaycenParser {
       case ValidJaycen(json) =>
         val keyValuePairs: List[String] = curlyBraceRemover(json).split(",").toList
 
-        val rawJayObjects = keyValuePairs.map(p => p.split(":").toList)
+        val rawJayObjects: List[List[String]] = keyValuePairs.map(p => p.split(":").toList)
 
-        println(rawJayObjects)
-        Jaycen(toJaycenFields(keyValuePairs))
+        def keyValueMap(rawObjects: List[List[String]]): List[List[JayObject]] = rawObjects match {
+          case k :: v :: Nil => {
+            println(toJaycenFields(Map(k -> v)))
+            toJaycenFields(Map(k -> v))
+          }
+//          case k :: t => k -> keyValueMap(List(t))
+        }
+
+
+        Jaycen(List(JayObject(JayField("k"), JayInt(1))))
+//        Jaycen(keyValueMap(rawJayObjects))
     }
 
-  private def toJaycenFields[T](pairs: List[String]): List[JayObject] = {
-    pairs.flatMap { pair =>
-      pair.split(":").toList match {
-        case h :: m :: t => JayObject(JayField(quoteMarkRemover(h)), toJayValue(quoteMarkRemover(m))) :: toJaycenFields(t)
-        case _ => throw new Exception("invalid jaycen")
-      }
-    }
+  private def toJaycenFields[T](pairs: Map[String,String]): List[JayObject] = {
+    pairs.map { pair =>
+      JayObject(JayField(quoteMarkRemover(pair._1)), toJayValue(quoteMarkRemover(pair._2)))
+    }.toList
   }
 
   private def toJayValue(raw: String): JayValue =
