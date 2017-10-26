@@ -17,4 +17,4 @@ case class JayInt(value: Int) extends JayValue
 case class JayBoolean(value: Boolean) extends JayValue
 case class JayArray[T](value: List[T]) extends JayValue
 case class JayField(key: String)
-case class JayObject(field: JayField, value: JayValue) extends JayValue
+case class JayObject(field: JayField, value: JayObject)
