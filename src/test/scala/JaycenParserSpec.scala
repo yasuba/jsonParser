@@ -17,6 +17,8 @@ class JaycenParserSpec extends FlatSpec with Matchers {
 
   val nestedObject = """{"person":{"name":"Maya"}}"""
 
+  val bigJaycen = """{"person":{"name":"Maya","age":35,"pets":["dog","cat"],"job":{"company":"ITV","title":"Scala Developer"}}}"""
+
   behavior of "Jaycen parser"
 
   it should "parse simple raw json"  in {
@@ -50,6 +52,10 @@ class JaycenParserSpec extends FlatSpec with Matchers {
 
   it should "parse nested objects" in {
     parse(nestedObject).get("name") shouldEqual "Maya"
+  }
+
+  it should "parse a big json!" in {
+    parse(bigJaycen).get("title") shouldEqual "Scala Developer"
   }
 
 }

@@ -13,7 +13,7 @@ object Validations {
 
   val quoteMarkChecker: JaycenValidateResult => JaycenValidateResult = {
     case ValidJaycen(rawJson) =>
-      val pairs = curlyBraceRemover(rawJson).split(":").toList
+      val pairs = outerCurlyBraceRemover(rawJson).split(":").toList
       pairs match {
         case h :: _ if h.startsWith("\"") && h.reverse.startsWith("\"") => ValidJaycen(rawJson)
         case _ => InvalidJaycen(rawJson, "Key must be in quotes")
