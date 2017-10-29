@@ -21,21 +21,10 @@ object Validations {
     case parseFail => parseFail
   }
 
+  val isMultiField: String => Boolean = string => string.contains(",\"")
+
   def isArray(rawJson: String): Boolean =
     rawJson.head == '[' && rawJson.reverse.head == ']'
-
-//  val keyValueChecker: JaysonValidateResult => JaysonValidateResult = {
-//    case ValidJayson(rawJson) => {
-//      val keysValues = rawJson.split(":").toList
-//
-//      keysValues.
-//
-//      keysValues.foreach(println(_))
-//      ValidJayson(keysValues.toString)
-//    }
-//    case InvalidJayson(j,e) => InvalidJayson(j,e)
-////    case ValidJayson(rawJson) => InvalidJayson(rawJson, "Jayson must consist of one key and one value")
-//  }
 
   val isValidJson: String => JaycenValidateResult = {
     curlyBraceChecker andThen quoteMarkChecker

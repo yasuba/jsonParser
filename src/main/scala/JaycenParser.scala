@@ -1,3 +1,4 @@
+import JaycenModel._
 import Transformations._
 import Validations._
 
@@ -16,50 +17,51 @@ object JaycenParser {
     }
   }
 
-  private def nestedObjectsKeyValueMap(kVMap: Map[String, String]): Map[String, Map[String, String]] =
+  def nestedObjectsKeyValueMap(kVMap: Map[String, String]): Map[String, Map[String, String]] =
     kVMap.collect{
       case s if s._2.contains('{') => {
         (s._1, toKeyValueMap(rawJayObjects(List(outerCurlyBraceRemover(s._2)))))
       }
     }
 
-  private val keyValuePairs: String => List[String] = json => outerCurlyBraceRemover(json).split(",").toList
+  val keyValuePairs: String => List[String] = json => {
+    val stripCurlies = outerCurlyBraceRemover(json)
 
-  private val rawJayObjects: List[String] => List[(String, String)] = kVPairs =>
+    def loop(raw: String, acc: List[String]): List[String] = {
+      if (isMultiField(raw)) {
+        val firstPair = raw.substring(raw.indexOf('"'), raw.indexOf(","))
+        commaRemove(raw.diff(firstPair)) match {
+          case sub if sub.contains('[') => {
+            loop(sub, firstPair :: acc)
+          }
+          case sub => List(firstPair, commaRemove(sub))
+        }
+      } else raw :: acc
+    }
+    loop(stripCurlies, List())
+  }
+
+  val rawJayObjects: List[String] => List[(String, String)] = kVPairs =>
     kVPairs.map(p => splitAtFirstColon(p))
 
-  private def toKeyValueMap(rawJayObjects: List[(String, String)]): Map[String, String] =
+  def toKeyValueMap(rawJayObjects: List[(String, String)]): Map[String, String] =
     rawJayObjects.map { case (k,v) => k -> colonRemover(v)}.toMap
 
-  private val simpleJayObjects: Map[String, String] => List[JayObject] = simpleMap =>
+  val simpleJayObjects: Map[String, String] => List[JayObject] = simpleMap =>
     simpleMap
-      .map(keyValueObject => toSimpleJayObject(quoteMarkRemover(keyValueObject._1), curlyBracketRemover(quoteMarkRemover(keyValueObject._2))))
+      .map(keyValueObject => {
+        toSimpleJayObject(quoteMarkRemover(keyValueObject._1), curlyBracketRemover(quoteMarkRemover(keyValueObject._2)))
+      })
       .toList
 
-  private def simpleKeyValueObjectsMap(keyValueMap: Map[String, String]): Map[String, String] =
+  def simpleKeyValueObjectsMap(keyValueMap: Map[String, String]): Map[String, String] =
     keyValueMap.filterNot(s => s._2.contains(':'))
 
 
-  private def toSimpleJayObject(pairs: (String, String)): JayObject =
+  def toSimpleJayObject(pairs: (String, String)): JayObject =
     SimpleObject(JayField(quoteMarkRemover(pairs._1)), toJayValue(colonRemover(pairs._2)))
 
-  private def toNestedJayObject(raw: (String, Map[String, String])): JayObject =
+  def toNestedJayObject(raw: (String, Map[String, String])): JayObject =
     NestedObject(JayField(quoteMarkRemover(raw._1)), simpleJayObjects(simpleKeyValueObjectsMap(raw._2)))
 
-
-  private def toJayValue(raw: String): JayValue = {
-      if (isArray(raw)) JayArray(squareBracketRemover(raw).split(",").toList)
-      else {
-        try {
-          JayInt(raw.toInt)
-        } catch {
-          case _: NumberFormatException => try {
-            JayBoolean(raw.toBoolean)
-          }
-          catch {
-            case _: IllegalArgumentException => JayString(raw)
-          }
-        }
-      }
-    }
 }
