@@ -25,15 +25,15 @@ object JaycenModel {
             }
             case a if a =:= typeOf[List[Int]] => value match {
               case JayArray(x) => x
-              case s => throw new Exception(s"Could not extract value as ${a.toString}")
+              case _ => throw new Exception(s"Could not extract value as ${a.toString}")
             }
             case a if a =:= typeOf[List[String]] => value match {
               case JayArray(x) => x
-              case s => throw new Exception(s"Could not extract value as ${a.toString}")
+              case _ => throw new Exception(s"Could not extract value as ${a.toString}")
             }
             case a if a =:= typeOf[List[Boolean]] => value match {
               case JayArray(x) => x
-              case s => throw new Exception(s"Could not extract value as ${a.toString}")
+              case _ => throw new Exception(s"Could not extract value as ${a.toString}")
             }
             case x => throw new Exception(s"Cannot extract value as ${x.toString}")
           }
@@ -64,9 +64,10 @@ object JaycenModel {
   val matchedField: String => List[JayObject] => Option[JayObject] = key => fields =>
     fields.find {
       case NestedObject(_, List(SimpleObject(field, _))) => field.key == key
+      case NestedObject(_, List(NestedObject(field, _))) => field.key == key
       case SimpleObject(field, _) => field.key == key
-//      case NestedObject(field, _) => field.key == key
-      case x => throw new Exception(x.toString)
+      case NestedObject(field, _) => field.key == key
+//      case x => throw new Exception(x.toString)
     }
 
   sealed trait JayValue
