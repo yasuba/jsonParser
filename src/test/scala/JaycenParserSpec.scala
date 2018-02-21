@@ -23,11 +23,11 @@ class JaycenParserSpec extends FlatSpec with Matchers {
 
   val bigJaycen = """{"person":{"name":"Maya","age":35,"pets":["dog","cat"],"job":{"company":"ITV","title":"Scala Developer"}}}"""
 
-  behavior of "Jaycen parser"
+  behavior of "Jaycen deserializer"
 
-//  it should "parse simple raw json"  in {
-//    parse(jsonString).get[String]("name") shouldEqual "Maya"
-//  }
+  it should "parse simple raw json"  in {
+    parse(jsonString).get[String]("name") shouldEqual "Maya"
+  }
 //
 //  it should "fail to parse json with no quote marks around key and value strings"  in {
 //    intercept[Exception] {
@@ -66,8 +66,8 @@ class JaycenParserSpec extends FlatSpec with Matchers {
 //    parse(bigJaycen).get[String]("title") shouldEqual "Scala Developer"
 //  }
 
-  it should "parse arrays when other objects follow" in {
-    parse(arrayMix).get[String]("food") shouldEqual "steak"
-  }
+//  it should "parse arrays when other objects follow" in {
+//    parse(arrayMix).get[String]("food") shouldEqual "steak"
+//  }
 
 }

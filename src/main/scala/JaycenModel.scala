@@ -5,7 +5,7 @@ import scala.reflect.runtime.universe._
 object JaycenModel {
 
   case class Jaycen(fields: List[JayObject]) {
-    def get[T](key: String)(implicit as: TypeTag[T]): Any = {
+    def get[T](key: String)(implicit as: TypeTag[T]): Any = { // TODO - Any? Ick
       def loop(jObjs: List[JayObject]): Any = {
         matchedField(key)(jObjs) match {
           case Some(SimpleObject(_, value)) => as.tpe match {
@@ -67,7 +67,7 @@ object JaycenModel {
       case NestedObject(_, List(NestedObject(field, _))) => field.key == key
       case SimpleObject(field, _) => field.key == key
       case NestedObject(field, _) => field.key == key
-//      case x => throw new Exception(x.toString)
+      case x => throw new Exception(x.toString)
     }
 
   sealed trait JayValue

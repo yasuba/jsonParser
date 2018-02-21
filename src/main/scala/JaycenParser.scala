@@ -9,9 +9,11 @@ object JaycenParser {
     case InvalidJaycen(_, error) => throw new Exception(error)
     case ValidJaycen(json) => {
       val keyValueMap: Map[String, String] = toKeyValueMap(rawJayObjects(keyValuePairs(json)))
+      //Map("name" -> "Bob")
       val nestedJayObjects: List[JayObject] = nestedObjectsKeyValueMap(keyValueMap).map {
         case x => toNestedJayObject(x)
       }.toList
+      //List()
       val simple = simpleJayObjects(simpleKeyValueObjectsMap(keyValueMap))
       Jaycen(simple ++ nestedJayObjects)
     }
